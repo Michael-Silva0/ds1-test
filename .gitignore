@@ -1,0 +1,15 @@
+#pastas de caches e compilação Python
+__pycache__
+*.py[cod]
+*$py.class
+
+#Ambientes virtuais
+venv/
+env/
+ENV/
+
+#Configuração de editor VS CODE
+.vscode/
+
+#Arquivos de variáveis de ambientes
+.env
