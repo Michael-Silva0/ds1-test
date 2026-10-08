@@ -13,3 +13,7 @@ ENV/
 
 #Arquivos de variáveis de ambientes
 .env
+
+#arquivos enviados pelo usuario em ambiente de desevolvimento
+static/uploads/*
+!static/uploads/.gitkeep

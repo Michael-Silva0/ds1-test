@@ -1,147 +1,64 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Página Inicial</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-</head>
+{% extends "base.html" %}
+{% block title %}Dashboard - Meu Sistema{% endblock %}
 
-<body>
-    <div class="container">
+{% block content %}
+    <h1>dashboard e Registro</h1>
+    <hr>
+    
+    {% include 'components/cards.html' %}
 
-        <p>Projeto Prático de DSI</p>
-        <hr>
-
-        <div class="cards-grid">
-
-            <div class="card">
-                <h3>Total de Itens</h3>
-                <p class="numero">{{ total }}</p>
-            </div>
-
-            <div class="card">
-                <h3>Faturamento</h3>
-                <p class="numero">
-                    R$ {{ "%.2f" | format(faturamento) }}
-                </p>
-            </div>
-
-            <div class="card">
-                <h3>Concluídos</h3>
-                <p class="numero">{{ concluidos }}</p>
-            </div>
-
-        </div>
-
-        <!-- Formulário de pesquisa -->
-        <form action="/" method="get" class="search-form">
-
-            <input 
-                type="text" 
-                name="busca" 
-                placeholder="Pesquisar por"
-                value="{{ busca }}"
-            >
-
-            <button type="submit" class="submit">
-                Buscar
-            </button>
-
-            {% if busca %}
-                <a href="/" class="btn-clear">Limpar Busca</a>
-            {% endif %}
-
-        </form>
-
-        <h2>Registro de Sistema</h2>
-
-        {% if cadastros | length == 0 %}
-
-            <p>
-                <em>Nenhum registro encontrado</em>
-            </p>
-
-        {% else %}
-
-            <table>
-
-                <thead>
-                    <tr>
-                        <th>#</th>
-                        <th>Nome</th>
-                        <th>Informações</th>
-                        <th>Valor (R$)</th>
-                        <th>Status</th>
-                        <th>Ações</th>
-                    </tr>
-                </thead>
-
-                <tbody>
-
-                    {% for item in cadastros %}
-
-                    <tr>
-
-                        <td>
-                            {{ loop.index }}
-                        </td>
-
-                        <td>
-                            {{ item.nome }}
-                        </td>
-
-                        <td>
-                            {{ item.info }}
-                        </td>
-
-                        <td>
-                            R$ {{ "%.2f" | format(item.valor) }}
-                        </td>
-
-                        <td>
-
-                            <span class="badge {{ 'badge-success' if item.status == 'Concluido' else 'badge-pendente' }}">
-                                {{ item.status }}
-                            </span>
-
-                        </td>
-
-                        <td>
-
-                            <a 
-                                href="/mudar.status/{{ loop.index0 }}" 
-                                class="btn-action"
-                            >
-                                Mudar Status
-                            </a>
-
-                            <a 
-                                href="/excluir/{{ loop.index0 }}" 
-                                class="btn-danger"
-                                onclick="return confirm('Deseja excluir este registro?')"
-                            >
-                                Excluir
-                            </a>
-
-                        </td>
-
-                    </tr>
-
-                    {% endfor %}
-
-                </tbody>
-
-            </table>
-
+    <hr>
+    <form action="/" method="get" class="search-form">
+        <input type="text" name="busca" placeholder="Pesquisar por nome..." value="{{ busca }}">
+        <select name="Categoria_id" oncharge="this.form.submit()">
+            <option value="">Todas as categorias</option>
+            {% for categoria in categorias %}
+                <option value="{{ cat.id }}" {% "selected" if categoria_selecionada == cat_id %}>{{ cat.nome }}</option>
+            {% endfor %}
+        </select>
+        <button type="submit">Filtrar</button>
+        {% if busca or categoria_selecionada %}
+            <a href="/" class="clear-filter">Limpar filtros</a>
         {% endif %}
+    </form>
+    <h2>Registros no banco de dados</h2>
 
-        <br>
+    {% if cadastros|length == 0 %}
+        <p>Nenhum registro encontrado.</p>
+    {% else %}
+        <table>
+            <thead>
+                <tr>
+                    <th>Foto</th>
+                    <th>ID</th>
+                    <th>Categoria</th>
+                    <th>Informações</th>
+                    <th>Valor</th>
+                    <th>Status</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in cadastro %}
+                    <tr>
+                        <td><img src="{{ url_for('static', filename='uploads/' ~ item.imagem) }}" alt="{{ item.nome }}" class="img-thumb"></td>
+                    
+                    </tr>
+                    <td>{{ item.id }}</td>
+                    <td>{{ item.nome }}</td>
+                    <td><span class="badge-cat">{{ item.categoria.nome }}</span></td>
+                    <td>{{ item.info }}</td>
+                    <td>R$ {{ "%.2f"|format(item.valor) }}</td>
+                    <td>
+                        <span class="badge {{'badge-success' if item.status == 'concluido' else 'badge'}}">{{ item.status }}</span>
 
-        <a href="/cadastro" class="btn">
-            Abrir Formulário
-        </a>
+                    </td>
+                    <td>
+                        <a href="/editar/{{ item.id }}" class="btn btn-edit">Editar</a>
+                        <a href="/deletar/{{ item.id }}" class="btn btn-delete" onclick="return confirm('Tem certeza que deseja excluir este registro?');">Excluir</a>
+                    </td>    
+                {% endfor %}
+            </tbody>
+        </table>
 
-    </div>
-</body>
-</html>
+        
